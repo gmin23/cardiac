@@ -4,9 +4,13 @@ from kivy.uix.button import Button
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
+from kivy.core.window import Window
 from kivy.uix.textinput import TextInput
 from ruffier import test
 from seconds import Seconds # Label
+import csv
+import os
+from datetime import datetime
 
 name = ""
 age = 7
@@ -21,15 +25,30 @@ def verify_int(str_num):
    except Exception as e:
        print("Error:", e)
        return False
+def save_to_csv(name, age, result1, result2, result3, evaluation): # save
+    #time=datetime.now()
+    filename = "results.csv"
+
+    file_exists = os.path.isfile(filename)
+
+    with open(filename, mode="a", newline="", encoding="utf-8") as file:
+        writer = csv.writer(file)
+
+        if not file_exists:# ko check key,chỉ file
+            print("apper here")
+            writer.writerow(["Name", "Age", "Pulse1", "Pulse2", "Pulse3", "Evaluation"])
+        
+        print("check")
+        writer.writerow([name, age, result1, result2, result3, evaluation])
 
 class InstructionScr(Screen):
    def __init__(self, **kwargs):
        super().__init__(**kwargs)
 
        lb_instr = Label(text=txt_instruction)
-       lb_name = Label(text="Enter your name:")
+       lb_name = Label(text="Enter your name:")#name
        self.ip_name = TextInput(multiline=False)
-       lb_age = Label(text="Enter your age:")
+       lb_age = Label(text="Enter your age:")#age
        self.ip_age = TextInput(multiline=False)
        btn_start = Button(text="Start", size_hint=(0.3, 0.2), pos_hint={"center_x": 0.5})
        btn_start.on_press = self.next
@@ -221,14 +240,23 @@ class ResultScr(Screen):
        self.on_enter = self.before
 
    def before(self):
-       global name, age, result1, result2, result3
+        global name, age, result1, result2, result3
 
-       self.lb_instr.text = name + "\n" + test(result1, result2, result3, age)
+        evaluation = test(result1, result2, result3, age)
+
+        self.lb_instr.text = name + "\n" + evaluation
+
+        
+        #save_to_csv(name, age, result1, result2, result3, evaluation)
+        save_to_csv("minh", 19, 180, 182, 183, 195)
+
+
 
 
 class MyApp(App):
    def build(self):
        sm = ScreenManager()
+       Window.clearcolor = (0.6, 0.6, 0.8, 1)
        sm.add_widget(InstructionScr(name="instruction"))
        sm.add_widget(Pulse1Scr(name="pulse1"))
        sm.add_widget(DoSquat(name="sits"))
