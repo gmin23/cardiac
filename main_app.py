@@ -5,6 +5,7 @@ from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.core.window import Window
+from kivy.uix.image import Image
 from kivy.uix.textinput import TextInput
 from ruffier import test
 from seconds import Seconds # Label
@@ -32,7 +33,7 @@ def save_to_csv(name, age, result1, result2, result3, evaluation): # save
     file_exists = os.path.isfile(filename)
 
     with open(filename, mode="a", newline="", encoding="utf-8") as file:
-        writer = csv.writer(file)
+        writer = csv.writer(file,int)
 
         if not file_exists:# ko check key,chỉ file
             print("apper here")
@@ -40,7 +41,33 @@ def save_to_csv(name, age, result1, result2, result3, evaluation): # save
         
         print("check")
         writer.writerow([name, age, result1, result2, result3, evaluation])
+class MainWin(Screen):
+   def __init__(self, **kwargs):
+       super().__init__(**kwargs)
 
+       layout_main = BoxLayout(orientation="vertical")
+       lb_intro = Label(font_size="25sp",text=" Ruffier")
+       btn_start = Button(text="Start", size_hint=(0.3, 0.2), pos_hint={"center_x": 0.5})
+       btn_start.on_press = self.next
+       img_path = '123.png'
+       if os.path.exists(img_path):
+            img = Image(
+                source=img_path,
+                size_hint=(1, 0.6),
+                allow_stretch=True,
+                keep_ratio=True
+            )
+            layout_main.add_widget(img)
+       else:
+            print(f"Error: Image file not found at {img_path}")
+
+       layout_main.add_widget(lb_intro)
+       layout_main.add_widget(btn_start)
+
+       self.add_widget(layout_main)
+
+   def next(self):
+       self.manager.current = "instruction"
 class InstructionScr(Screen):
    def __init__(self, **kwargs):
        super().__init__(**kwargs)
@@ -257,6 +284,7 @@ class MyApp(App):
    def build(self):
        sm = ScreenManager()
        Window.clearcolor = (0.6, 0.6, 0.8, 1)
+       sm.add_widget(MainWin(name="introdution"))
        sm.add_widget(InstructionScr(name="instruction"))
        sm.add_widget(Pulse1Scr(name="pulse1"))
        sm.add_widget(DoSquat(name="sits"))
